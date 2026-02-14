@@ -6,7 +6,7 @@ export function Footer(){
         <footer>
             <div className="footer-wrapper">
                 <p>Jayendra Lal Joshi</p>
-                <FontAwesomeIcon icon={faGithub} />
+                <a href="https://github.com/JayendraJoshi/Memory-Card" target="_blank"><FontAwesomeIcon icon={faGithub} /></a>
             </div>
         </footer>
     )
