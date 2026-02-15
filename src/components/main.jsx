@@ -76,7 +76,10 @@ export function Main({scores, setScores}){
 function getCardDivs(cards){
         const cardDivsArray = [];
         for(let i = 0;i<cards.length;i++){
-            cardDivsArray.push(<div className="card" key={cards[i].name.full} id={cards[i].name.full}><img src={cards[i].image.large}></img></div>)
+            cardDivsArray.push(<div className="card" key={cards[i].name.full} id={cards[i].name.full}>
+                <img src={cards[i].image.large}></img>
+                <p>{cards[i].name.full}</p>
+                </div>)
         }
         return cardDivsArray;
 }
