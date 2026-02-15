@@ -125,7 +125,6 @@ main{
 }
 .card{
   background-color:white;
-  opacity:60%;
   min-height:260px;
   min-width:160px;
   cursor:pointer;
