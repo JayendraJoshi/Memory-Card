@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import shuffle from "lodash.shuffle"
 
-export function Main({scores, setScores}){
+export function Main({gameProgress, setGameProgress, popups, setPopups}){
     const [cards, setCards] = useState([]);
+
 
     useEffect(()=>{
             async function getJsonFromAPI(){
@@ -63,11 +64,19 @@ export function Main({scores, setScores}){
             setInitialCards();
     },[]);
 
+    useEffect(()=>{
+        if(willAPopupBeRendered(popups))addDarkTintClassOnRoot();
+        return()=>{
+            removeDarkTintClassFromRoot();
+        }
+    },[popups])
+
     const cardDivs = getCardDivs(cards);
     return (
         <main>
             <div className="main-wrapper">
                 {cardDivs}
+                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups,setPopups):null}
             </div>
         </main>   
     )
@@ -83,9 +92,73 @@ function getCardDivs(cards){
         }
         return cardDivsArray;
 }
-
-
-
+function getStartPopup(setPopups){
+    return(
+        <div className="start-popup popup">
+            <h2>Welcome!</h2>
+            <p>Beat this game to help frieren and her friends<br></br> defeat the demon lord and save humanity!</p>
+            <p>Are you up for the task..?</p>
+            <p>Do you want to read the rules?</p>
+            <div>
+                <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false})}>Yes!</button>
+                <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false})}>No, thank you!</button>
+            </div>
+            
+        </div>
+    )
+}
+function getInfoPopup(setPopups){
+    return(
+        <div className="info-popup popup">
+            <h2>Instructions</h2>
+            <ol>
+                <li>Get points by clicking an image once.</li>
+                <li>After every click, images change their position.</li>
+                <li>If you click an image more than once, you lose!</li>
+            </ol>
+            <p>Good luck!</p>
+            <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false})}>I'm ready!</button>
+        </div>
+    )
+}
+function getWinPopup(setPopups){
+    return(
+        <div className="win-popup popup">
+            <h2>You won!</h2>
+            <p>You defeated the demon king and brought peace to the realm!</p>
+            <button>New Game</button>
+        </div>
+    )
+}
+function getLosePopup(setPopups){
+    return(
+        <div className="lose-popup popup">
+            <h2>You lost!</h2>
+            <p>The demon king has won and the realm is doomed...</p>
+            <button>New Game</button>
+        </div>
+    )
+}
+function addDarkTintClassOnRoot(){
+    const root = document.querySelector("#root");
+    root.classList.add("dark-tint");
+}
+function removeDarkTintClassFromRoot(){
+     const root = document.querySelector("#root");
+      root.classList.remove("dark-tint");
+}
+function willAPopupBeRendered(popups){
+    for(const key in popups){
+        if(popups[key])return true;
+    }
+    return false;
+}
+function returnPopupToBeRendered(popups,setPopups){
+   if(popups.showStartPopup) return getStartPopup(setPopups);
+   else if(popups.showInfoPopup) return getInfoPopup(setPopups);
+   else if(popups.showWinPopup) return getWinPopup(setPopups);
+   else if(popups.showLosePopup) return getLosePopup(setPopups);
+}
 // const [scores,setScores] = UseState({score:0;bestScore:0;clickedImages:[]}) should be defined in parent of main and header
 
 //1. Get objects with images with useEffect[] and put them in an array
