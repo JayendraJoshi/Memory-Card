@@ -105,6 +105,9 @@ h1{
   border:2px solid black;
   cursor:pointer;
 }
+.gamecontrols-container button:hover{
+    background-color: rgba(255, 255, 255, 0.2);
+}
 .score-board{
   display:flex;
   flex-direction:column;
@@ -145,6 +148,12 @@ main{
   flex-direction:column;
     border-radius:8px;
     border:4px solid black;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover{
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(63, 9, 189, 0.7);
+  border-color: rgb(47, 21, 139);
 }
 .card img{
   flex-grow:1;
@@ -155,7 +164,6 @@ main{
   font-weight:700;
    color:white;
    opacity:80%;
-  
 }
 .popup{
   position:absolute;
@@ -167,9 +175,10 @@ main{
   flex-direction:column;
   align-items:center;
   padding:2rem 1rem;
-  min-height:400px;
+  gap:2rem;
   justify-content:space-around;
   z-index:2;
+  max-width:400px;
 }
 .popup button{
   cursor:pointer;
@@ -178,11 +187,26 @@ main{
   display:flex;
   gap:1rem;
 }
-.start-popup div button{
+.popup{
+  border-radius:8px;
+}
+.popup div button{
   padding: 8px 16px;
   border-radius:8px;
 }
-
+.popup button{
+  padding: 8px 16px;
+  border-radius:8px;
+}
+.popup ol{
+   list-style-position: inside;
+}
+.popup li{
+  overflow-wrap: break-word;
+}
+.lose-popup, .win-popup{
+  text-align:center;
+}
 footer{
   background-color:black;
   opacity:60%;

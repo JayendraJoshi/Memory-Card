@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInfo, faMusic  } from '@fortawesome/free-solid-svg-icons' 
+import { faInfo, faVolume, faVolumeOff  } from '@fortawesome/free-solid-svg-icons' 
 
-export function Header({gameProgress, setPopups}){
+export function Header({gameProgress, setPopups, playVolume, setPlayVolume}){
     return(
         <header>
             <div className="header-wrapper">
                 <h1>Frieren Memory Game</h1>
                 <div className="gamecontrols-container">
-                   <button> <FontAwesomeIcon icon={faMusic} /></button>
+                   <button onClick={()=>{setPlayVolume(prev=>!prev), playSoundIfRequested(!playVolume)}}> {playVolume ?<FontAwesomeIcon icon={faVolume}/>:<FontAwesomeIcon icon={faVolumeOff} />}</button>
                     <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false})}><FontAwesomeIcon icon={faInfo} /></button>
                     <div className="score-board">
                         <div className="score-count-container">
@@ -23,4 +23,12 @@ export function Header({gameProgress, setPopups}){
             </div>
         </header>
     )
+}
+
+function playSoundIfRequested(newPlayVolumeValue){
+    if(newPlayVolumeValue){
+
+    }else{
+
+    }
 }

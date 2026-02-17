@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import shuffle from "lodash.shuffle"
 
-export function Main({gameProgress, setGameProgress, popups, setPopups}){
+export function Main({gameProgress, setGameProgress, popups, setPopups, setPlayVolume}){
     const [cards, setCards] = useState([]);
 
     useEffect(()=>{
@@ -76,7 +76,7 @@ export function Main({gameProgress, setGameProgress, popups, setPopups}){
         <main>
             <div className="main-wrapper">
                 {cardDivs}
-                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups,setPopups, setCards):null}
+                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups,setPopups, setCards, setPlayVolume):null}
             </div>
         </main>   
     )
@@ -116,10 +116,11 @@ function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, 
             console.log("You won!");
         }
         else{
+            /*
             setCards(prev=>{
                 const shuffledCards = shuffle(prev);
                 return shuffledCards;
-            })
+            })*/
         }
     }
 }
@@ -133,19 +134,17 @@ function isIDPresentInGameProgress(gameProgress, newId){
     if(gameProgress.clickedImages.length==0)  return false;
     return gameProgress.clickedImages.find(savedId=> savedId === newId)
 }
-
-function getStartPopup(setPopups){
+function getStartPopup(setPopups, setPlayVolume){
     return(
         <div className="start-popup popup">
             <h2>Welcome!</h2>
-            <p>Beat this game to help frieren and her friends<br></br> defeat the demon lord and save humanity!</p>
+            <p>Beat this game to help Frieren and her friends<br></br> defeat the Demon Lord and save humanity!</p>
             <p>Are you up for the task..?</p>
             <p>Do you want to read the rules?</p>
             <div>
-                <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false})}>Yes!</button>
-                <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false})}>No, thank you!</button>
+                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false}),setPlayVolume(true)}}>Yes!</button>
+                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setPlayVolume(true)}}>No, thank you!</button>
             </div>
-            
         </div>
     )
 }
@@ -167,7 +166,7 @@ function getWinPopup(setPopups, setCards){
     return(
         <div className="win-popup popup">
             <h2>You won!</h2>
-            <p>You defeated the demon king and brought peace to the realm!</p>
+            <p>You defeated the Demon King and brought peace to the world!</p>
             <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>
                 New Game</button>
         </div>
@@ -177,7 +176,7 @@ function getLosePopup(setPopups, setCards){
     return(
         <div className="lose-popup popup">
             <h2>You lost!</h2>
-            <p>The demon king has won and the realm is doomed...</p>
+            <p>The Demon King has won and the world is doomed...</p>
             <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>New Game</button>
         </div>
     )
@@ -196,32 +195,9 @@ function willAPopupBeRendered(popups){
     }
     return false;
 }
-function returnPopupToBeRendered(popups,setPopups, setCards){
-   if(popups.showStartPopup) return getStartPopup(setPopups);
+function returnPopupToBeRendered(popups,setPopups, setCards, setPlayVolume){
+   if(popups.showStartPopup) return getStartPopup(setPopups, setPlayVolume);
    else if(popups.showInfoPopup) return getInfoPopup(setPopups);
    else if(popups.showWinPopup) return getWinPopup(setPopups, setCards);
    else if(popups.showLosePopup) return getLosePopup(setPopups, setCards);
 }
-// const [scores,setScores] = UseState({score:0;bestScore:0;clickedImages:[]}) should be defined in parent of main and header
-
-//1. Get objects with images with useEffect[] and put them in an array
-//2. Call function 'shuffleImages' to change the position of the objects containing the images
-//3. Call function 'getCardDivsWithImages' to get Divs with the images. Use name property of the objects as key and id
-//4. User clicks on an image, check if id is present in array 'clickedImages'
-
-    //5. If yes, render loseScreen and show 'New Game' button
-    //6. User clicks 'new Game button', set score to 0 and remove all entries from 'clickedImages' array
-    //7. This triggers a rerender and cards will be newly shuffled, the only value that persists is 'best score'
-
-    //5. If no, add id to the 'clickedImages' array
-    //6. Check if the number of id's inside 'clickedImages' is 12
-
-        //7. If yes, render winScreen and show 'New Game' button
-        //8. User clicks 'new Game button', set score to 0 and remove all entries from 'clickedImages' array
-        //9. This triggers a rerender and cards will be newly shuffled, the only value that persists is 'best score'
-
-        //7. If no, add id to 'clickedImages' array
-        //8. This triggers a rerender and cards will be shuffled, score, bestScore and 'clickedImages' will keep their values
-
-   
-    
