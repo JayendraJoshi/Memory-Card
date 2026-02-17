@@ -4,7 +4,6 @@ import shuffle from "lodash.shuffle"
 export function Main({gameProgress, setGameProgress, popups, setPopups}){
     const [cards, setCards] = useState([]);
 
-
     useEffect(()=>{
             async function getJsonFromAPI(){
                 const endpoint = 'https://graphql.anilist.co';
@@ -71,27 +70,70 @@ export function Main({gameProgress, setGameProgress, popups, setPopups}){
         }
     },[popups])
 
-    const cardDivs = getCardDivs(cards);
+    const cardDivs = getCardDivs(gameProgress, setGameProgress,cards, setCards, setPopups);
+
     return (
         <main>
             <div className="main-wrapper">
                 {cardDivs}
-                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups,setPopups):null}
+                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups,setPopups, setCards):null}
             </div>
         </main>   
     )
 }
 
-function getCardDivs(cards){
+function getCardDivs(gameProgress, setGameProgress,cards, setCards, setPopups){
         const cardDivsArray = [];
-        for(let i = 0;i<cards.length;i++){
-            cardDivsArray.push(<div className="card" key={cards[i].name.full} id={cards[i].name.full}>
-                <img src={cards[i].image.large}></img>
-                <p>{cards[i].name.full}</p>
+        for(const element of cards){
+            cardDivsArray.push(<div className="card" key={element.name.full} id={element.name.full} onClick={(e)=>clickEventOnCard(e, gameProgress, setGameProgress,cards, setCards,setPopups)}>
+                <img src={element.image.large}></img>
+                <p>{element.name.full}</p>
                 </div>)
         }
         return cardDivsArray;
 }
+function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, setPopups){
+    const card = event.target.closest(".card");
+    if(isIDPresentInGameProgress(gameProgress, card.id)){
+        setGameProgress(prev=>({...prev,score:0,clickedImages:[]}));
+        setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:true})
+    }else{
+        setGameProgress(prev => {
+        const nextScore = prev.score + 1;
+        const nextClickedImages = [...(prev.clickedImages), card.id];
+        const nextBestScore = Math.max(prev.bestScore, nextScore);
+        return {
+            ...prev,
+            score: nextScore,
+            bestScore: nextBestScore,
+            clickedImages: nextClickedImages,
+        };
+        })
+        const newClickedImages = [...(gameProgress.clickedImages),card.id];
+        if(hasPlayerWon(cards,newClickedImages)){
+            setGameProgress(prev=>({...prev,score:0,clickedImages:[]}));
+            setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:true,showLosePopup:false});
+            console.log("You won!");
+        }
+        else{
+            setCards(prev=>{
+                const shuffledCards = shuffle(prev);
+                return shuffledCards;
+            })
+        }
+    }
+}
+function hasPlayerWon(cards, newClickedImages){
+    for(let i = 0;i< cards.length;i++){
+        if(!newClickedImages.some(savedID=>savedID===cards[i].name.full)) return false;
+    }
+    return true;
+}
+function isIDPresentInGameProgress(gameProgress, newId){
+    if(gameProgress.clickedImages.length==0)  return false;
+    return gameProgress.clickedImages.find(savedId=> savedId === newId)
+}
+
 function getStartPopup(setPopups){
     return(
         <div className="start-popup popup">
@@ -121,21 +163,22 @@ function getInfoPopup(setPopups){
         </div>
     )
 }
-function getWinPopup(setPopups){
+function getWinPopup(setPopups, setCards){
     return(
         <div className="win-popup popup">
             <h2>You won!</h2>
             <p>You defeated the demon king and brought peace to the realm!</p>
-            <button>New Game</button>
+            <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>
+                New Game</button>
         </div>
     )
 }
-function getLosePopup(setPopups){
+function getLosePopup(setPopups, setCards){
     return(
         <div className="lose-popup popup">
             <h2>You lost!</h2>
             <p>The demon king has won and the realm is doomed...</p>
-            <button>New Game</button>
+            <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>New Game</button>
         </div>
     )
 }
@@ -153,11 +196,11 @@ function willAPopupBeRendered(popups){
     }
     return false;
 }
-function returnPopupToBeRendered(popups,setPopups){
+function returnPopupToBeRendered(popups,setPopups, setCards){
    if(popups.showStartPopup) return getStartPopup(setPopups);
    else if(popups.showInfoPopup) return getInfoPopup(setPopups);
-   else if(popups.showWinPopup) return getWinPopup(setPopups);
-   else if(popups.showLosePopup) return getLosePopup(setPopups);
+   else if(popups.showWinPopup) return getWinPopup(setPopups, setCards);
+   else if(popups.showLosePopup) return getLosePopup(setPopups, setCards);
 }
 // const [scores,setScores] = UseState({score:0;bestScore:0;clickedImages:[]}) should be defined in parent of main and header
 
