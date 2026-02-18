@@ -60,7 +60,7 @@ body{
 }
 #root{
   min-height:100vh;
-  background:url('./assets/images/wallhaven-jxvl8p.jpg') center/cover no-repeat fixed;
+  background:url('./assets/images/background.jpg') center/cover no-repeat fixed;
   font-family:"Nunito","sans-serif";
   width:100%;
   display:flex;
