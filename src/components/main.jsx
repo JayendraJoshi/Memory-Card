@@ -1,25 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import shuffle from "lodash.shuffle"
+import cardFlipSoundUrl from '../assets/sounds/card-flip.ogg?url';
 
-export function Main({gameProgress, setGameProgress, popups, setPopups, setPlayVolume}){
+export function Main({gameProgress, setGameProgress, popups, setPopups, soundOn, setSoundOn, playBackgroundThemeIfRequested, playClickSoundIfRequested}){
+    //Hooks
     const [cards, setCards] = useState([]);
-
     useEffect(()=>{
             async function getJsonFromAPI(){
                 const endpoint = 'https://graphql.anilist.co';
                 const query = `
-                query GetFrierenCharacters($id: Int!, $perPage: Int!, $page: Int!) {
-                    Media(id: $id, type: ANIME) {
+            query ($id: Int!, $page: Int!, $perPage: Int!) {
+            Media(id: $id, type: ANIME) {
+                characters(page: $page, perPage: $perPage, sort: [FAVOURITES_DESC, RELEVANCE]) {
+                edges {
+                    node {
                     id
-                    title { romaji }
-                    characters(perPage: $perPage, page: $page, sort: ROLE) {
-                        pageInfo { total currentPage hasNextPage }
-                        edges {
-                        node { name { full } image { large } }
-                        }
+                    name {
+                        userPreferred
+                        full
+                        native
+                        alternative
                     }
+                    image { large }
                     }
                 }
+                }
+            }
+            }
                 `;
                 try{
                     const res = await fetch(endpoint,{
@@ -62,36 +69,93 @@ export function Main({gameProgress, setGameProgress, popups, setPopups, setPlayV
             }
             setInitialCards();
     },[]);
-
     useEffect(()=>{
         if(willAPopupBeRendered(popups))addDarkTintClassOnRoot();
         return()=>{
             removeDarkTintClassFromRoot();
         }
     },[popups])
+    const cardFlipAudioRef = useRef(new Audio(cardFlipSoundUrl));
 
-    const cardDivs = getCardDivs(gameProgress, setGameProgress,cards, setCards, setPopups);
-
-    return (
-        <main>
-            <div className="main-wrapper">
-                {cardDivs}
-                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups,setPopups, setCards, setPlayVolume):null}
-            </div>
-        </main>   
-    )
-}
-
-function getCardDivs(gameProgress, setGameProgress,cards, setCards, setPopups){
+    //Create components
+    function getCardDivs(){
         const cardDivsArray = [];
         for(const element of cards){
-            cardDivsArray.push(<div className="card" key={element.name.full} id={element.name.full} onClick={(e)=>clickEventOnCard(e, gameProgress, setGameProgress,cards, setCards,setPopups)}>
+            cardDivsArray.push(<div className="card" key={element.id} id={element.id} onClick={(e)=>{clickEventOnCard(e, gameProgress, setGameProgress,cards, setCards,setPopups),playClickSoundIfRequested(soundOn, cardFlipAudioRef)}}>
                 <img src={element.image.large}></img>
                 <p>{element.name.full}</p>
                 </div>)
         }
         return cardDivsArray;
+    }
+    function getStartPopup(){
+    return(
+        <div className="start-popup popup">
+            <h2>Welcome!</h2>
+            <p>Beat this game to help Frieren and her friends defeat the Demon Lord and save humanity!</p>
+            <p>Are you up for the task..?</p>
+            <p>Do you want to read the rules?</p>
+            <div>
+                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false}),setSoundOn(true),playBackgroundThemeIfRequested(true)}}>Yes!</button>
+                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setSoundOn(true),playBackgroundThemeIfRequested(true)}}>No, thank you!</button>
+            </div>
+        </div>
+    )
+    }
+    function getInfoPopup(){
+        return(
+            <div className="info-popup popup">
+                <h2>Instructions</h2>
+                <ol>
+                    <li>Get points by clicking an image once.</li>
+                    <li>After every click, images change their position.</li>
+                    <li>If you click an image more than once, you lose!</li>
+                </ol>
+                <p>Good luck!</p>
+                <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false})}>I'm ready!</button>
+            </div>
+        )
+    }
+    function getWinPopup(){
+        return(
+            <div className="win-popup popup">
+                <h2>You won!</h2>
+                <p>You defeated the Demon King and brought peace to the world!</p>
+                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>
+                    New Game</button>
+            </div>
+        )
+    }
+    function getLosePopup(){
+        return(
+            <div className="lose-popup popup">
+                <h2>You lost!</h2>
+                <p>The Demon King has won and the world is doomed...</p>
+                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>New Game</button>
+            </div>
+        )
+    }
+    function returnPopupToBeRendered(){
+   if(popups.showStartPopup) return getStartPopup(setPopups, setSoundOn, playBackgroundThemeIfRequested);
+   else if(popups.showInfoPopup) return getInfoPopup(setPopups);
+   else if(popups.showWinPopup) return getWinPopup(setPopups, setCards);
+   else if(popups.showLosePopup) return getLosePopup(setPopups, setCards);
+    }
+
+    const cardDivs = getCardDivs(gameProgress, setGameProgress,cards, setCards, setPopups, soundOn, cardFlipAudioRef);
+
+    return (
+        <main>
+            <div className="main-wrapper">
+                {cardDivs}
+                {willAPopupBeRendered(popups) ? returnPopupToBeRendered(popups):null}
+            </div>
+        </main>   
+    )
 }
+
+//Helper functions
+
 function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, setPopups){
     const card = event.target.closest(".card");
     if(isIDPresentInGameProgress(gameProgress, card.id)){
@@ -116,11 +180,10 @@ function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, 
             console.log("You won!");
         }
         else{
-            /*
             setCards(prev=>{
                 const shuffledCards = shuffle(prev);
                 return shuffledCards;
-            })*/
+            })
         }
     }
 }
@@ -133,53 +196,6 @@ function hasPlayerWon(cards, newClickedImages){
 function isIDPresentInGameProgress(gameProgress, newId){
     if(gameProgress.clickedImages.length==0)  return false;
     return gameProgress.clickedImages.find(savedId=> savedId === newId)
-}
-function getStartPopup(setPopups, setPlayVolume){
-    return(
-        <div className="start-popup popup">
-            <h2>Welcome!</h2>
-            <p>Beat this game to help Frieren and her friends<br></br> defeat the Demon Lord and save humanity!</p>
-            <p>Are you up for the task..?</p>
-            <p>Do you want to read the rules?</p>
-            <div>
-                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false}),setPlayVolume(true)}}>Yes!</button>
-                <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setPlayVolume(true)}}>No, thank you!</button>
-            </div>
-        </div>
-    )
-}
-function getInfoPopup(setPopups){
-    return(
-        <div className="info-popup popup">
-            <h2>Instructions</h2>
-            <ol>
-                <li>Get points by clicking an image once.</li>
-                <li>After every click, images change their position.</li>
-                <li>If you click an image more than once, you lose!</li>
-            </ol>
-            <p>Good luck!</p>
-            <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false})}>I'm ready!</button>
-        </div>
-    )
-}
-function getWinPopup(setPopups, setCards){
-    return(
-        <div className="win-popup popup">
-            <h2>You won!</h2>
-            <p>You defeated the Demon King and brought peace to the world!</p>
-            <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>
-                New Game</button>
-        </div>
-    )
-}
-function getLosePopup(setPopups, setCards){
-    return(
-        <div className="lose-popup popup">
-            <h2>You lost!</h2>
-            <p>The Demon King has won and the world is doomed...</p>
-            <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:false}),setCards(prev=>{const shuffledCards = shuffle(prev); return shuffledCards;})}}>New Game</button>
-        </div>
-    )
 }
 function addDarkTintClassOnRoot(){
     const root = document.querySelector("#root");
@@ -194,10 +210,4 @@ function willAPopupBeRendered(popups){
         if(popups[key])return true;
     }
     return false;
-}
-function returnPopupToBeRendered(popups,setPopups, setCards, setPlayVolume){
-   if(popups.showStartPopup) return getStartPopup(setPopups, setPlayVolume);
-   else if(popups.showInfoPopup) return getInfoPopup(setPopups);
-   else if(popups.showWinPopup) return getWinPopup(setPopups, setCards);
-   else if(popups.showLosePopup) return getLosePopup(setPopups, setCards);
 }

@@ -1,14 +1,19 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInfo, faVolume, faVolumeOff  } from '@fortawesome/free-solid-svg-icons' 
+import { useRef } from 'react';
+import buttonClickSound from '../assets/sounds/button-click.mp3?url';
 
-export function Header({gameProgress, setPopups, playVolume, setPlayVolume}){
+export function Header({gameProgress, setPopups, soundOn, setSoundOn, playBackgroundThemeIfRequested, playClickSoundIfRequested}){
+    
+    const buttonClickRef = useRef(new Audio(buttonClickSound));
+
     return(
         <header>
             <div className="header-wrapper">
-                <h1>Frieren Memory Game</h1>
+                <h1>Frieren <span>Memory Game</span></h1>
                 <div className="gamecontrols-container">
-                   <button onClick={()=>{setPlayVolume(prev=>!prev), playSoundIfRequested(!playVolume)}}> {playVolume ?<FontAwesomeIcon icon={faVolume}/>:<FontAwesomeIcon icon={faVolumeOff} />}</button>
-                    <button onClick={()=>setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false})}><FontAwesomeIcon icon={faInfo} /></button>
+                   <button onClick={()=>{setSoundOn(prev=>!prev), playBackgroundThemeIfRequested(!soundOn)}}> {soundOn ?<FontAwesomeIcon icon={faVolume}/>:<FontAwesomeIcon icon={faVolumeOff} />}</button>
+                    <button onClick={()=>{setPopups({showStartPopup:false,showInfoPopup:true,showWinPopup:false,showLosePopup:false}),playClickSoundIfRequested(soundOn,buttonClickRef)}}><FontAwesomeIcon icon={faInfo} /></button>
                     <div className="score-board">
                         <div className="score-count-container">
                             <p>Score :</p>
@@ -25,10 +30,3 @@ export function Header({gameProgress, setPopups, playVolume, setPlayVolume}){
     )
 }
 
-function playSoundIfRequested(newPlayVolumeValue){
-    if(newPlayVolumeValue){
-
-    }else{
-
-    }
-}
