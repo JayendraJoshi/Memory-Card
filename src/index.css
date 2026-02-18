@@ -136,7 +136,7 @@ main{
   display:grid;
   grid-template-columns:repeat(6,minmax(240px,1fr));
   gap:0.6rem;
-  padding:2rem 5rem;
+  padding:0rem 5rem;
   row-gap:2rem;
   column-gap:2rem;
   max-width:1800px;
@@ -145,7 +145,7 @@ main{
 }
 .card{
   background-color:black;
-  min-height:260px;
+  max-height:300px;
   min-width:240px;
   cursor:pointer;
   display:flex;
@@ -160,9 +160,9 @@ main{
   border-color: rgb(47, 21, 139);
 }
 .card img{
-  flex-grow:1;
+  object-fit:cover;
+  min-height:0;
   border-radius:8px;
-  max-height:340px;
 }
 .card p{
   text-align:center;
@@ -279,12 +279,8 @@ footer{
     grid-template-columns:repeat(3,240px);
     justify-content:center;
   }
-  .card img{
-    min-height:0;
-    object-fit:cover;
-  }
   .card{
-    max-height:280px;
+    max-height:240px;
   }
 }
 @media(max-width:1000px){
