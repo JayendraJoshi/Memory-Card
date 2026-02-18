@@ -18,7 +18,7 @@ Through this project, I learned to use `useEffect` effectively for fetching data
 - React
 - Vite
 - Git
-- Netlify
+- Vercel
 - Font Awesome
 - AniList GraphQL API
 
@@ -32,7 +32,7 @@ Through this project, I learned to use `useEffect` effectively for fetching data
 
 ## Live Demo
 
-- Netlify: *(add your deployment URL here)*
+- Vercel: https://memory-card-nu-sable.vercel.app/
 
 ## Screenshot
 
