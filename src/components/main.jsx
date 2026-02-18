@@ -158,13 +158,14 @@ export function Main({gameProgress, setGameProgress, popups, setPopups, soundOn,
 
 function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, setPopups){
     const card = event.target.closest(".card");
-    if(isIDPresentInGameProgress(gameProgress, card.id)){
+    const cardId = Number(card.id);
+    if(isIDPresentInGameProgress(gameProgress, cardId)){
         setGameProgress(prev=>({...prev,score:0,clickedImages:[]}));
         setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:false,showLosePopup:true})
     }else{
         setGameProgress(prev => {
         const nextScore = prev.score + 1;
-        const nextClickedImages = [...(prev.clickedImages), card.id];
+        const nextClickedImages = [...(prev.clickedImages), cardId];
         const nextBestScore = Math.max(prev.bestScore, nextScore);
         return {
             ...prev,
@@ -173,7 +174,7 @@ function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, 
             clickedImages: nextClickedImages,
         };
         })
-        const newClickedImages = [...(gameProgress.clickedImages),card.id];
+        const newClickedImages = [...(gameProgress.clickedImages),cardId];
         if(hasPlayerWon(cards,newClickedImages)){
             setGameProgress(prev=>({...prev,score:0,clickedImages:[]}));
             setPopups({showStartPopup:false,showInfoPopup:false,showWinPopup:true,showLosePopup:false});
@@ -189,7 +190,7 @@ function clickEventOnCard(event, gameProgress, setGameProgress,cards, setCards, 
 }
 function hasPlayerWon(cards, newClickedImages){
     for(let i = 0;i< cards.length;i++){
-        if(!newClickedImages.some(savedID=>savedID===cards[i].name.full)) return false;
+        if(!newClickedImages.some(savedID=>savedID===cards[i].id)) return false;
     }
     return true;
 }
