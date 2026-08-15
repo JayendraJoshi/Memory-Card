@@ -15,6 +15,7 @@ Through this project, I learned to use `useEffect` effectively for fetching data
 - HTML5
 - CSS3
 - JavaScript (ES6+)
+- TypeScript
 - React
 - Vite
 - Git
