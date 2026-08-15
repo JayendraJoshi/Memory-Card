@@ -1,6 +1,6 @@
 # Memory-Card
 
-A responsive memory card game inspired by the popular anime *Frieren*.
+A responsive memory card game inspired by the popular anime _Frieren_.
 
 ## About This Project
 
@@ -41,22 +41,27 @@ Through this project, I learned to use `useEffect` effectively for fetching data
 ## Resources
 
 ### Images
+
 - https://wallhaven.cc/w/jxvl8p
 
 ### Icons
+
 - https://fontawesome.com/icons/github?f=brands&s=solid
 - https://fontawesome.com/icons/info?f=classic&s=solid
 - https://fontawesome.com/icons/volume?f=classic&s=solid
 - https://fontawesome.com/icons/volume-off?f=classic&s=solid
 
 ### Favicon
+
 - https://unsplash.com/photos/silver-and-diamond-studded-cross-pendant-rGzUMs-QsCM
 
 ### Fonts
+
 - Nunito & Fraunces  
   https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap
 
 ### Sounds
+
 - https://youtu.be/LQHMy3J1ZsY?si=7r9W4OtrmAgbteNM
 - https://freesound.org/people/egomassive/sounds/536782/
 - https://pixabay.com/sound-effects/film-special-effects-click-buttons-ui-menu-sounds-effects-button-6-203600/
